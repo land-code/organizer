@@ -1,0 +1,19 @@
+---
+interface Props {
+  title: string;
+  description: string | null;
+}
+
+const { title, description } = Astro.props;
+---
+
+<li class="bg-zinc-600 p-4 rounded-xl">
+  <article>
+    <header>
+      <h1 class="text-xl">{title}</h1>
+    </header>
+    <main>
+      {description && <p>{description}</p>}
+    </main>
+  </article>
+</li>
