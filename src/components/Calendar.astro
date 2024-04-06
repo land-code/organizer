@@ -1,16 +1,68 @@
 ---
-const date = new Date();
+import { MonthSchema } from '@/schemas/DateSchema';
+
+const { searchParams } = Astro.url;
+
+const getDateBySearchParams = (searchParams: URLSearchParams) => {
+  const rawMonth = searchParams.get('month');
+  const rawYear = searchParams.get('year');
+
+  if (!rawMonth || !rawYear) {
+    return new Date();
+  }
+
+  const parsedDate = MonthSchema.safeParse({
+    month: Number(rawMonth),
+    year: Number(rawYear),
+  });
+  if (!parsedDate.success) {
+    console.log(parsedDate.error.errors);
+    throw new Error('Invalid date');
+  }
+
+  const { month, year } = parsedDate.data;
+
+  return new Date(year, month - 1, 1);
+};
+
+const date = getDateBySearchParams(searchParams);
+
 const year = date.getFullYear();
 const month = date.getMonth();
-const day = date.getDate();
-const monthName = date.toLocaleString('default', { month: 'long' });
 const daysInMonth = new Date(year, month + 1, 0).getDate();
 const firstDay = new Date(year, month, 1).getDay();
+
+const prevMonth = new Date(year, month - 1, 1);
+const nextMonth = new Date(year, month + 1, 1);
+
+const getMonthName = (date: Date) => {
+  return date.toLocaleDateString('default', {
+    month: 'long',
+    year: 'numeric',
+  });
+};
 
 const today = new Date();
 ---
 
-<div class="grid grid-cols-7 gap-4 py-4">
+<div class="flex flex-wrap justify-between gap-4 py-4 items-center">
+  <a
+    href={`/?month=${prevMonth.getMonth() + 1}&year=${prevMonth.getFullYear()}`}
+    class="text-xl"
+  >
+    {getMonthName(prevMonth)}
+  </a>
+  <h1 class="text-4xl">
+    {getMonthName(date)}
+  </h1>
+  <a
+    href={`/?month=${nextMonth.getMonth() + 1}&year=${nextMonth.getFullYear()}`}
+    class="text-xl"
+  >
+    {getMonthName(nextMonth)}
+  </a>
+</div>
+<div class="grid grid-cols-7 gap-4">
   {
     Array(daysInMonth)
       .fill(null)

@@ -1,16 +1,11 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import { DateSchema } from '@/schemas/DateSchema';
 import { z } from 'astro/zod';
 
 const { day: rawDay, month: rawMonth, year: rawYear } = Astro.params;
 
-const paramsSchema = z.object({
-  day: z.number(),
-  month: z.number(),
-  year: z.number(),
-});
-
-const parsedData = paramsSchema.safeParse({
+const parsedData = DateSchema.safeParse({
   day: Number(rawDay),
   month: Number(rawMonth),
   year: Number(rawYear),
