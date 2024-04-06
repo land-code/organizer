@@ -1,5 +1,6 @@
 ---
 import { MonthSchema } from '@/schemas/DateSchema';
+import CalendarDay from './CalendarDay.astro';
 
 const { searchParams } = Astro.url;
 
@@ -39,6 +40,8 @@ const getFirstDay = (year: number, month: number) => {
 const firstDay = getFirstDay(year, month);
 
 const prevMonth = new Date(year, month - 1, 1);
+const prevMonthYear = prevMonth.getFullYear();
+const prevMonthMonth = prevMonth.getMonth();
 const nextMonth = new Date(year, month + 1, 1);
 
 const getMonthName = (date: Date) => {
@@ -53,6 +56,7 @@ const today = new Date();
 
 <div class="flex flex-wrap justify-between gap-4 py-4 items-center">
   <a
+    id="prev-month"
     href={`/?month=${prevMonth.getMonth() + 1}&year=${prevMonth.getFullYear()}`}
     class="text-xl"
   >
@@ -62,6 +66,7 @@ const today = new Date();
     {getMonthName(date)}
   </h1>
   <a
+    id="next-month"
     href={`/?month=${nextMonth.getMonth() + 1}&year=${nextMonth.getFullYear()}`}
     class="text-xl"
   >
@@ -76,14 +81,12 @@ const today = new Date();
         .map((_, index) => {
           const day = new Date(year, month, 0).getDate() - index;
           return (
-            <div class="day p-2 h-32 bg-zinc-700 rounded-xl">
-              <header>
-                <h1>{day}</h1>
-              </header>
-              <main>
-                <ul />
-              </main>
-            </div>
+            <CalendarDay
+              day={day}
+              month={prevMonthMonth}
+              year={prevMonthYear}
+              isOtherMonth
+            />
           );
         })
         .reverse()
@@ -91,75 +94,46 @@ const today = new Date();
   {
     Array(daysInMonth)
       .fill(null)
-      .map((_, index) => {
-        const day = index + 1;
-        const isFirst = day === 1;
-
-        const isToday =
-          new Date(year, month, day).toDateString() === today.toDateString();
-        return (
-          <a
-            href={`/${day}-${month + 1}-${year}`}
-            class={`day p-2 h-32 overflow-auto scroll-p-8 bg-zinc-600 rounded-xl cursor-pointer hover:bg-zinc-500 ${isToday ? 'border-4 border-zinc-500' : ''}`}
-            style={isFirst ? `grid-column-start: ${firstDay}` : ''}
-            transition:name={`day-${day}`}
-          >
-            <header>
-              <h1 class="pointer-events-none">{day}</h1>
-            </header>
-            <main>
-              <ul>
-                <li>Evento 1</li>
-                <li>Evento 1</li>
-                <li>Evento 1</li>
-                <li>Evento 1</li>
-                <li>Evento 1</li>
-                <li>Evento 1</li>
-                <li>Evento 1</li>
-              </ul>
-            </main>
-          </a>
-        );
-      })
+      .map((_, index) => (
+        <CalendarDay
+          day={index + 1}
+          month={month}
+          year={year}
+          today={today}
+          firstDay={firstDay}
+        />
+      ))
   }
   {
     Array(7 - ((firstDay + daysInMonth - 1) % 7))
       .fill(null)
       .map((_, index) => {
-        const day = index + 1;
+        const day = new Date(year, month, 0).getDate() - index;
         return (
-          <div class="day p-2 h-32 bg-zinc-700 rounded-xl">
-            <header>
-              <h1>{day}</h1>
-            </header>
-            <main>
-              <ul />
-            </main>
-          </div>
+          <CalendarDay
+            day={day}
+            month={prevMonthMonth}
+            year={prevMonthYear}
+            isOtherMonth
+          />
         );
       })
   }
 </div>
-<style>
-  /* width */
-  .day::-webkit-scrollbar {
-    width: 10px;
-  }
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const prevMonthButton = document.getElementById('prev-month');
+    const nextMonthButton = document.getElementById('next-month');
 
-  /* Track */
-  .day::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    @apply rounded-xl;
-  }
+    if (!prevMonthButton || !nextMonthButton) {
+      return;
+    }
 
-  /* Handle */
-  .day::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 5px;
-  }
+    const removeTransitionDay = () => {
+      document.cookie = `transitionDay='6'; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    };
 
-  /* Handle on hover */
-  .day::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
-</style>
+    prevMonthButton.addEventListener('click', removeTransitionDay);
+    nextMonthButton.addEventListener('click', removeTransitionDay);
+  });
+</script>

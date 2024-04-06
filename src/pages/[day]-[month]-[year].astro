@@ -22,13 +22,15 @@ if (date.toString() === 'Invalid Date') {
 }
 
 const day = date.getDate();
+const month = date.getMonth() + 1;
+const year = date.getFullYear();
 ---
 
 <Layout
   title={`Date ${date.toDateString()}`}
   description={`Shows info about the date ${date.toDateString()}.`}
 >
-  <div transition:name={`day-${day}`}>
+  <div transition:name={`day-${day}-${month}-${year}`}>
     {date.toDateString()}
   </div>
 </Layout>

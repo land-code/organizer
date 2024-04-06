@@ -1,0 +1,101 @@
+---
+interface Props {
+  day: number;
+  month: number;
+  year: number;
+  firstDay?: number;
+  today?: Date;
+  isOtherMonth?: boolean;
+}
+
+const { day, month, year, firstDay, today, isOtherMonth } = Astro.props;
+
+const getTransitionDay = () => {
+  if (isOtherMonth) {
+    return '';
+  }
+
+  const defaultTransition = !isOtherMonth ? `day-${day}` : '';
+  const transitionDay = Astro.cookies.get('transitionDay');
+  if (!transitionDay || transitionDay.number() !== day) {
+    return defaultTransition;
+  }
+
+  return `day-${day}-${month + 1}-${year}`;
+};
+
+const isFirst = day === 1;
+
+const isToday =
+  new Date(year, month, day).toDateString() === today?.toDateString();
+---
+
+<a
+  href={`/${day}-${month + 1}-${year}`}
+  data-day={day}
+  data-month={month + 1}
+  data-year={year}
+  class:list={[
+    'day p-2 h-32 overflow-auto scroll-p-8 bg-zinc-600 rounded-xl cursor-pointer hover:bg-zinc-500',
+    isToday && 'border-4 border-zinc-500',
+    isOtherMonth && 'opacity-50',
+  ]}
+  style={isFirst ? `grid-column-start: ${firstDay}` : ''}
+  transition:name={getTransitionDay()}
+>
+  <header>
+    <h1 class="pointer-events-none">{day}</h1>
+  </header>
+  <main>
+    <ul></ul>
+  </main>
+</a>
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const dayElList = document.querySelectorAll('a');
+
+    const handleDayClick = (e: MouseEvent) => {
+      const dayEl = e.target as HTMLAnchorElement;
+      const { day, month, year } = dayEl.dataset;
+
+      if (!day || !month || !year) {
+        return;
+      }
+
+      dayEl.style['view-transition-name' as any] =
+        `day-${day}-${month}-${year}`;
+
+      const expirationDate = new Date(new Date().setHours(24, 0, 0, 0)).toUTCString();
+
+      document.cookie = `transitionDay=${day}; expires=${expirationDate}`;
+    };
+
+    dayElList.forEach((dayEl) => {
+      dayEl.addEventListener('click', handleDayClick);
+    });
+  });
+</script>
+
+<style>
+  /* width */
+  .day::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  .day::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    @apply rounded-xl;
+  }
+
+  /* Handle */
+  .day::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+  }
+
+  /* Handle on hover */
+  .day::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>
