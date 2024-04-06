@@ -1,6 +1,64 @@
-<header class="flex justify-between flex-wrap items-center gap-4 border-b-2 border-zinc-400 text-zinc-400">
+<header
+  class="flex justify-between flex-wrap items-center gap-4 border-b-2 border-zinc-400 text-zinc-400"
+>
   <span class="text-3xl text-zinc-50"> Organizer </span>
-  <nav class="text-2xl">
+  <nav class="flex flex-wrap gap-4 text-2xl">
     <a href="/" class="hover:text-zinc-200 transition-colors">Home</a>
+    <button id="add-event-button" class="hover:text-zinc-200 transition-colors"
+      >Add event</button
+    >
   </nav>
 </header>
+<dialog id="add-event-dialog" class="bg-zinc-800 p-4 rounded-xl text-zinc-50">
+  <form action="/events" method="post" class="flex flex-col gap-4">
+    <label for="name">Name</label>
+    <input
+      class="bg-zinc-800 p-2 rounded-xl outline-none text-zinc-50 placeholder:text-zinc-400 border-2 border-zinc-400 focus:border-zinc-200"
+      type="text"
+      name="name"
+      id="name"
+      required
+      placeholder="John Doe"
+    />
+    <label for="date">Date</label>
+    <input
+      class="bg-zinc-800 p-2 rounded-xl outline-none text-zinc-50 placeholder:text-zinc-400 border-2 border-zinc-400 focus:border-zinc-200"
+      type="date"
+      name="date"
+      id="date"
+      required
+    />
+    <label for="time">Time</label>
+    <input
+      class="bg-zinc-800 p-2 rounded-xl outline-none text-zinc-50 placeholder:text-zinc-400 border-2 border-zinc-400 focus:border-zinc-200"
+      type="time"
+      name="time"
+      id="time"
+      required
+    />
+    <label for="description">Description</label>
+    <textarea
+      class="bg-zinc-800 p-2 rounded-xl outline-none text-zinc-50 placeholder:text-zinc-400 border-2 border-zinc-400 focus:border-zinc-200"
+      name="description"
+      placeholder="This is a description of the event."
+      id="description"
+      required></textarea>
+    <button type="submit">Add</button>
+  </form>
+  <button>Cancel</button>
+</dialog>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const addEventButton = document.querySelector(
+      'button#add-event-button'
+    ) as HTMLButtonElement;
+    const dialogEl = document.querySelector(
+      'dialog#add-event-dialog'
+    ) as HTMLDialogElement;
+
+    addEventButton.addEventListener('click', () => {
+      dialogEl.showModal();
+    });
+  });
+</script>
