@@ -1,4 +1,9 @@
 ---
+interface Event {
+  event_date: string;
+  title: string;
+}
+
 interface Props {
   day: number;
   month: number;
@@ -6,9 +11,18 @@ interface Props {
   firstDay?: number;
   today?: Date;
   isOtherMonth?: boolean;
+  events: Event[] | null;
 }
 
-const { day, month, year, firstDay, today, isOtherMonth } = Astro.props;
+const { day, month, year, firstDay, today, isOtherMonth, events } = Astro.props;
+
+const dayEvents = events?.filter(({ event_date }) => {
+  const date = new Date(event_date);
+  const today = new Date(year, month, day);
+  console.log(date.toDateString(), today.toDateString());
+
+  return date.toDateString() === today.toDateString();
+});
 
 const getTransitionDay = () => {
   if (isOtherMonth) {
@@ -36,7 +50,7 @@ const isToday =
   data-month={month + 1}
   data-year={year}
   class:list={[
-    'day p-2 h-32 overflow-auto scroll-p-8 bg-zinc-600 rounded-xl cursor-pointer hover:bg-zinc-500',
+    'day p-2 h-32 overflow-auto scroll-p-8 bg-zinc-600 rounded-xl hover:bg-zinc-500',
     isToday && 'border-4 border-zinc-500',
     isOtherMonth && 'opacity-50',
   ]}
@@ -47,7 +61,9 @@ const isToday =
     <h1 class="pointer-events-none">{day}</h1>
   </header>
   <main>
-    <ul></ul>
+    <ul>
+      {dayEvents?.map(({ title }) => <li>{title}</li>)}
+    </ul>
   </main>
 </a>
 <script>
@@ -65,8 +81,9 @@ const isToday =
       dayEl.style['view-transition-name' as any] =
         `day-${day}-${month}-${year}`;
 
-      const expirationDate = new Date(new Date().setHours(24, 0, 0, 0)).toUTCString();
-
+      const expirationDate = new Date(
+        new Date().setHours(24, 0, 0, 0)
+      ).toUTCString();
       document.cookie = `transitionDay=${day}; expires=${expirationDate}`;
     };
 

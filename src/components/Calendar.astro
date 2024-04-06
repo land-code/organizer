@@ -1,8 +1,13 @@
 ---
 import { MonthSchema } from '@/schemas/DateSchema';
 import CalendarDay from './CalendarDay.astro';
+import { supabase } from '@/db/client';
 
 const { searchParams } = Astro.url;
+
+const { data: eventsData } = await supabase
+  .from('events')
+  .select('event_date, title');
 
 const getDateBySearchParams = (searchParams: URLSearchParams) => {
   const rawMonth = searchParams.get('month');
@@ -85,6 +90,7 @@ const today = new Date();
               day={day}
               month={prevMonthMonth}
               year={prevMonthYear}
+              events={eventsData}
               isOtherMonth
             />
           );
@@ -101,6 +107,7 @@ const today = new Date();
           year={year}
           today={today}
           firstDay={firstDay}
+          events={eventsData}
         />
       ))
   }
@@ -114,6 +121,7 @@ const today = new Date();
             day={day}
             month={prevMonthMonth}
             year={prevMonthYear}
+            events={eventsData}
             isOtherMonth
           />
         );
