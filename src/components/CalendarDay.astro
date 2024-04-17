@@ -24,38 +24,25 @@ const dayEvents = events?.filter(({ event_date }) => {
   return date.toDateString() === today.toDateString();
 });
 
-const getTransitionDay = () => {
-  if (isOtherMonth) {
-    return '';
-  }
-
-  const defaultTransition = !isOtherMonth ? `day-${day}` : '';
-  const transitionDay = Astro.cookies.get('transitionDay');
-  if (!transitionDay || transitionDay.number() !== day) {
-    return defaultTransition;
-  }
-
-  return `day-${day}-${month + 1}-${year}`;
-};
-
 const isFirst = day === 1;
 
 const isToday =
   new Date(year, month, day).toDateString() === today?.toDateString();
+
+const Tag = isOtherMonth ? 'div' : 'a'
 ---
 
-<a
-  href={`/${day}-${month + 1}-${year}`}
+<Tag
+  href={!isOtherMonth ? `/${day}-${month + 1}-${year}` : ''}
   data-day={day}
   data-month={month + 1}
   data-year={year}
   class:list={[
-    'day p-2 h-32 overflow-auto scroll-p-8 bg-zinc-600 rounded-xl hover:bg-zinc-500',
+    'day p-2 h-32 overflow-auto scroll-p-8 bg-zinc-600 rounded-xl',
     isToday && 'border-4 border-zinc-500',
-    isOtherMonth && 'opacity-50',
+    isOtherMonth ? 'opacity-50' : 'hover:bg-zinc-500',
   ]}
   style={isFirst ? `grid-column-start: ${firstDay}` : ''}
-  transition:name={getTransitionDay()}
 >
   <header>
     <h1 class="pointer-events-none">{day}</h1>
@@ -65,7 +52,7 @@ const isToday =
       {dayEvents?.map(({ title }) => <li>{title}</li>)}
     </ul>
   </main>
-</a>
+</>
 <script>
   document.addEventListener('astro:page-load', () => {
     const dayElList = document.querySelectorAll('a');

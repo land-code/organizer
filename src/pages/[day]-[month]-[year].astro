@@ -32,7 +32,8 @@ const { data: eventsData } = await supabase
   .select('title, description, event_date');
 
 const filteredEvents = eventsData?.filter(
-  ({ event_date }) => new Date(event_date).toDateString() === date.toDateString()
+  ({ event_date }) =>
+    new Date(event_date).toDateString() === date.toDateString()
 );
 ---
 

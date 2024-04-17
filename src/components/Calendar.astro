@@ -2,6 +2,8 @@
 import { MonthSchema } from '@/schemas/DateSchema';
 import CalendarDay from './CalendarDay.astro';
 import { supabase } from '@/db/client';
+import { slide } from 'astro:transitions';
+import type { TransitionDirectionalAnimations } from 'astro';
 
 const { searchParams } = Astro.url;
 
@@ -57,8 +59,47 @@ const getMonthName = (date: Date) => {
 };
 
 const today = new Date();
+
+const anim = {
+  old: {
+    name: 'slide',
+    duration: '0.5s',
+    direction: 'reversed',
+    fillMode: 'forwards',
+    easing: 'linear',
+  },
+  new: {
+    name: 'slideOut',
+    duration: '0.5s',
+    direction: 'reversed',
+    easing: 'linear',
+    fillMode: 'forwards',
+  },
+};
+const myFade = {
+  forwards: anim,
+  backwards: anim,
+};
 ---
 
+<style is:global>
+  @keyframes slide {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0%);
+    }
+  }
+  @keyframes slideOut {
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+</style>
 <div class="flex flex-wrap justify-between gap-4 py-4 items-center">
   <a
     id="prev-month"
@@ -78,7 +119,11 @@ const today = new Date();
     {getMonthName(nextMonth)}
   </a>
 </div>
-<div class="grid grid-cols-7 gap-4">
+<div
+  class="grid grid-cols-7 gap-4"
+  transition:animate={myFade}
+  transition:persist="persistent"
+>
   {
     firstDay > 0 &&
       Array(firstDay - 1)
@@ -128,20 +173,3 @@ const today = new Date();
       })
   }
 </div>
-<script>
-  document.addEventListener('astro:page-load', () => {
-    const prevMonthButton = document.getElementById('prev-month');
-    const nextMonthButton = document.getElementById('next-month');
-
-    if (!prevMonthButton || !nextMonthButton) {
-      return;
-    }
-
-    const removeTransitionDay = () => {
-      document.cookie = `transitionDay='6'; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    };
-
-    prevMonthButton.addEventListener('click', removeTransitionDay);
-    nextMonthButton.addEventListener('click', removeTransitionDay);
-  });
-</script>
